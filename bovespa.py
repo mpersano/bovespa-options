@@ -133,7 +133,8 @@ class Option:
         self.close_price = quote.close_price
 
     def days_to_expiration(self):
-        assert self.expiration
+        if not self.expiration:
+            raise ValueError('Expiration date is not set for this option')
         return (self.expiration - self.date).days
 
     def implied_volatility(self):
