@@ -110,30 +110,20 @@ class Option:
     def set_strike(self, strike):
         if not self.expiration:
             raise ValueError('Expiration date is not set for this option')
-        closest = min(self._quotes(), key=lambda q:abs(q.strike - strike))
-        if closest.strike - strike >= 0.005:
+        quote = min(self._quotes(), key=lambda q:abs(q.strike - strike))
+        if quote.strike - strike >= 0.005:
             raise ValueError('Strikes for this option: %s' % ', '.join(['%.02f' % q.strike for q in self._data]))
-        self.strike = closest.strike
-        self._set_quote()
-
-    def _quotes(self):
-        assert self.expiration
-        return filter(lambda q:q.expiration == self.expiration, self._data)
-
-    def _set_quote(self):
-        assert self.expiration
-        assert self.strike
-
-        quote = min(self._quotes(), key=lambda q:abs(q.strike - self.strike))
-
+        self.strike = quote.strike
         self.ticker = quote.ticker
-
         self.date = quote.date
-
         self.open_price = quote.open_price
         self.high_price = quote.high_price
         self.low_price = quote.low_price
         self.close_price = quote.close_price
+
+    def _quotes(self):
+        assert self.expiration
+        return filter(lambda q:q.expiration == self.expiration, self._data)
 
     def expirations(self):
         return sorted(list(set(q.expiration for q in self._data)))
